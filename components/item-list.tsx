@@ -1,22 +1,16 @@
 'use client'
 
-import { Todos } from '@/app/[slug]/page'
 import { supabase } from '@/lib/supabase'
-import { todoSchema } from '@/lib/zod'
+import { todoSchema, todosSchema } from '@/lib/zod'
 import { useListStore } from '@/lib/zustand'
-import { X } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Button } from './button'
-import { Card } from './card'
-import { FormValues } from './insert-form'
+import { useEffect } from 'react'
 import { Item } from './item'
 
 type ItemListProps = {
-	items: Todos
 	listId: string
 }
 
-function ItemList({ items, listId }: ItemListProps) {
+function ItemList({ listId }: ItemListProps) {
 	const { update, loading, setLoading, todos } = useListStore((s) => ({
 		update: s.update,
 		loading: s.loadingTodos,
@@ -25,13 +19,23 @@ function ItemList({ items, listId }: ItemListProps) {
 	}))
 
 	useEffect(() => {
-		update((old) => items)
-		return () => {
-			update((old) => [])
-		}
-	}, [items, update])
+		async function getTodos(listId: string) {
+			const { data, error } = await supabase.from('lists').select('*, todos(*)').eq('id', listId)
 
-	useEffect(() => {
+			const todos = data?.at(0)?.todos
+
+			if (!todos) {
+				return todosSchema.parse([])
+			}
+
+			if (!Array.isArray(todos)) {
+				return todosSchema.parse([todos])
+			}
+
+			update(() => todosSchema.parse(todos))
+		}
+
+		getTodos(listId)
 		const channel = supabase
 			.channel('value-db-changes')
 			.on(
@@ -88,8 +92,8 @@ function ItemList({ items, listId }: ItemListProps) {
 				}
 			)
 			.subscribe()
-
 		return () => {
+			update((old) => [])
 			channel.unsubscribe()
 		}
 	}, [listId, update])

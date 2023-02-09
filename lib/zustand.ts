@@ -1,5 +1,5 @@
-import { Todos } from '@/app/[slug]/page'
 import { create } from 'zustand'
+import { Todos } from './zod'
 
 type ListStore = {
 	items: Todos
