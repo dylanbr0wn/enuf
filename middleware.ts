@@ -21,8 +21,8 @@ export async function middleware(request: NextRequest) {
 		body: JSON.stringify({}),
 		headers: {
 			'Content-Type': 'application/json',
-			apikey: process.env.SUPABASE_KEY!,
-			Authorization: `Bearer ${process.env.SUPABASE_KEY}`,
+			apikey: process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+			Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_KEY}`,
 		},
 	}).then((res) => res.json())
 
