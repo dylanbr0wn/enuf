@@ -53,21 +53,24 @@ export interface Database {
           created_at: string | null
           description: string | null
           id: string
-          list_id: string | null
+          list_id: string
+          priority: number
           title: string | null
         }
         Insert: {
           created_at?: string | null
           description?: string | null
-          id?: string
-          list_id?: string | null
+          id: string
+          list_id: string
+          priority?: number
           title?: string | null
         }
         Update: {
           created_at?: string | null
           description?: string | null
           id?: string
-          list_id?: string | null
+          list_id?: string
+          priority?: number
           title?: string | null
         }
       }

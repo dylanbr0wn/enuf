@@ -66,16 +66,10 @@ function ItemList({ listId }: ItemListProps) {
 					filter: `list_id=eq.${listId}`,
 				},
 				(payload) => {
+					console.log(payload)
 					const todo = todoSchema.parse(payload.new)
-
-					update((old) => {
-						const index = old.findIndex((item) => item.id === todo.id)
-						if (index === -1) {
-							return old
-						}
-						old[index] = todo
-						return old
-					})
+					console.log(todo)
+					update((old) => old.map((item) => (item.id === todo.id ? todo : item)))
 				}
 			)
 			.on(

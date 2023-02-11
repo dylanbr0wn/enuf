@@ -6,10 +6,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { createId } from '@paralleldrive/cuid2'
 import { useListStore } from '@/lib/zustand'
 import { todoSchema } from '@/lib/zod'
+import { Button } from './button'
 
 type InsertFormProps = {
 	placeholder: string
@@ -46,6 +47,7 @@ function InsertForm({ placeholder, listId }: InsertFormProps) {
 			id: createId(),
 			description: '',
 			created_at: new Date().toISOString(),
+			priority: 2,
 		})
 		update((old) => [...old, newTodo])
 		reset()
@@ -54,7 +56,10 @@ function InsertForm({ placeholder, listId }: InsertFormProps) {
 	}
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="relative">
+		<form onSubmit={handleSubmit(onSubmit)} className="relative flex items-center gap-1">
+			<Button variant="ghost" size="sm">
+				<Plus className="h-4 w-4" />
+			</Button>
 			<Input {...register('newItem')} placeholder={placeholder} />
 			{loading && (
 				<div className="absolute top-1/2 right-2 -translate-y-1/2 ">

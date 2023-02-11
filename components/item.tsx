@@ -1,6 +1,16 @@
-import { Todo } from '@/app/page'
-import { Check, X } from 'lucide-react'
-import { useState } from 'react'
+import {
+	Check,
+	X,
+	MoreHorizontal,
+	ChevronsUp,
+	ChevronsDown,
+	ChevronDown,
+	Circle,
+	ChevronUp,
+	LucideIcon,
+	LucideProps,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Button } from './button'
 import { Card } from './card'
 import { Checkbox } from './checkbox'
@@ -11,6 +21,20 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useListStore } from '@/lib/zustand'
 import { supabase } from '@/lib/supabase'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+} from './dropdown-menu'
+import { Todo } from '@/lib/zod'
 
 type ItemProps = {
 	item: Todo
@@ -50,14 +74,31 @@ function Item({ item, loading, clickHandler }: ItemProps) {
 		clickHandler(item.id)
 	}
 
+	useEffect(() => {
+		reset({ title: item.title })
+	}, [item.title, reset])
+
 	async function onSubmit(data: { title: string | null }) {
 		update((old) => {
 			const index = old.findIndex((i) => i.id === item.id)
 			old[index].title = data.title ?? ''
 			return old
 		})
-		reset({ title: data.title })
+		reset({ title: data.title ?? '' })
 		await supabase.from('todos').update({ title: data.title }).eq('id', item.id)
+	}
+
+	async function handlePriorityChange(priority: string) {
+		const newPriority = Number(priority)
+
+		if (isNaN(newPriority)) return
+
+		update((old) => {
+			const index = old.findIndex((i) => i.id === item.id)
+			old[index].priority = newPriority
+			return old
+		})
+		await supabase.from('todos').update({ priority: newPriority }).eq('id', item.id)
 	}
 
 	return (
@@ -97,12 +138,7 @@ function Item({ item, loading, clickHandler }: ItemProps) {
 								/>
 								{isDirty && (
 									<>
-										<Button
-											type="submit"
-											size="sm"
-											className="pointer-events-auto z-10"
-											// className="text-slate-500 hover:text-slate-400 focus:text-slate-400"
-										>
+										<Button type="submit" size="sm" className="pointer-events-auto z-10">
 											<Check className=" h-4 w-4" />
 										</Button>
 										<Button
@@ -111,22 +147,59 @@ function Item({ item, loading, clickHandler }: ItemProps) {
 											variant="outline"
 											onClick={() => reset()}
 											className="pointer-events-auto z-10"
-											// className="text-slate-500 hover:text-slate-400 focus:text-slate-400"
 										>
 											<X className="h-4 w-4" />
 										</Button>
 									</>
 								)}
 							</form>
+							<div className="grow" />
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="ghost" className="z-10 " size="sm">
+										<PriorityIcon priority={item.priority} className="h-4 w-4" />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="start">
+									<div className="w-36 text-sm">
+										<DropdownMenuLabel>Priority</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										<div className="w-36 text-sm">
+											<DropdownMenuRadioGroup
+												value={item.priority.toString()}
+												onValueChange={handlePriorityChange}
+											>
+												<DropdownMenuRadioItem value="4" className="flex items-center gap-3">
+													<PriorityIcon priority={4} className="h-4 w-4" />
+													<span>Highest</span>
+												</DropdownMenuRadioItem>
+												<DropdownMenuRadioItem value="3" className="flex items-center gap-3">
+													<PriorityIcon priority={3} className="h-4 w-4" />
+													<span>High</span>
+												</DropdownMenuRadioItem>
+												<DropdownMenuRadioItem value="2" className="flex items-center gap-3">
+													<PriorityIcon priority={2} className="h-4 w-4" />
+													<span>Medium</span>
+												</DropdownMenuRadioItem>
+												<DropdownMenuRadioItem value="1" className="flex items-center gap-3">
+													<PriorityIcon priority={1} className="h-4 w-4" />
+													<span>Low</span>
+												</DropdownMenuRadioItem>
+												<DropdownMenuRadioItem value="0" className="flex items-center gap-3">
+													<PriorityIcon priority={0} className="h-4 w-4" />
+													<span>Lowest</span>
+												</DropdownMenuRadioItem>
+											</DropdownMenuRadioGroup>
+										</div>
+									</div>
+								</DropdownMenuContent>
+							</DropdownMenu>
 
 							<button
 								title="Open card"
 								className="absolute top-0 left-0 z-0 h-full w-full cursor-pointer"
 								onClick={() => setOpen(true)}
 							/>
-							{/* <Button disabled={loading} onClick={() => clickHandler(item.id)} variant="ghost">
-					<X className="h-5 w-5 text-neutral-500" />
-				</Button> */}
 						</motion.div>
 					</motion.div>
 				</motion.div>
@@ -168,3 +241,17 @@ function Item({ item, loading, clickHandler }: ItemProps) {
 	)
 }
 export { Item }
+
+function PriorityIcon({ priority, ...props }: { priority: number } & LucideProps) {
+	const icons: ((props: LucideProps) => JSX.Element)[] = [
+		(props) => <ChevronsDown key="0" {...props} />,
+		(props) => <ChevronDown key="1" {...props} />,
+		(props) => <Circle key="2" {...props} />,
+		(props) => <ChevronUp key="3" {...props} />,
+		(props) => <ChevronsUp key="4" {...props} />,
+	]
+
+	const Icon = icons[priority]
+
+	return <Icon {...props} />
+}

@@ -20,8 +20,6 @@ function getRandomPlaceholder() {
 	return placeholder_todos[Math.floor(Math.random() * placeholder_todos.length)]
 }
 
-export type Todo = Database['public']['Tables']['todos']['Row']
-
 export default async function Home() {
 	return (
 		<main className="">
