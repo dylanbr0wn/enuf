@@ -3,8 +3,13 @@
 import { supabase } from '@/lib/supabase'
 import { todoSchema, todosSchema } from '@/lib/zod'
 import { useListStore } from '@/lib/zustand'
-import { useEffect } from 'react'
+import { LayoutGroup, Reorder } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { Item } from './item'
+import type { Todos } from '@/lib/zod'
+
+import { useOnKeyPress } from '@/lib/hooks'
+import { calcNewRank } from '@/lib/utils'
 
 type ItemListProps = {
 	listId: string
@@ -17,6 +22,38 @@ function ItemList({ listId }: ItemListProps) {
 		setLoading: s.setLoadingTodos,
 		todos: s.items,
 	}))
+
+	const [lastDragged, setLastDragged] = useState<string>()
+	const [selected, setSelected] = useState(0)
+
+	useOnKeyPress('ArrowUp', () => {
+		setSelected((s) => {
+			if (s === 0) {
+				return todos.length - 1
+			}
+			return s - 1
+		})
+	})
+
+	useOnKeyPress('ArrowDown', () => {
+		setSelected((s) => {
+			if (s === todos.length - 1) {
+				return 0
+			}
+			return s + 1
+		})
+	})
+
+	useOnKeyPress(
+		'Enter',
+		() => {
+			if (todos.length > 0) {
+				const id = todos.at(selected)?.id
+				clickHandler(id ?? '')
+			}
+		},
+		{ meta: true }
+	)
 
 	useEffect(() => {
 		async function getTodos(listId: string) {
@@ -31,7 +68,7 @@ function ItemList({ listId }: ItemListProps) {
 			if (!Array.isArray(todos)) {
 				return todosSchema.parse([todos])
 			}
-
+			todos.sort((a, b) => ('' + a.sort_rank).localeCompare(b.sort_rank ?? ''))
 			update(() => todosSchema.parse(todos))
 		}
 
@@ -66,9 +103,7 @@ function ItemList({ listId }: ItemListProps) {
 					filter: `list_id=eq.${listId}`,
 				},
 				(payload) => {
-					console.log(payload)
 					const todo = todoSchema.parse(payload.new)
-					console.log(todo)
 					update((old) => old.map((item) => (item.id === todo.id ? todo : item)))
 				}
 			)
@@ -81,7 +116,6 @@ function ItemList({ listId }: ItemListProps) {
 					filter: `list_id=eq.${listId}`,
 				},
 				(payload) => {
-					console.log('here')
 					update((old) => old.filter((item) => item.id !== payload.old.id))
 				}
 			)
@@ -97,16 +131,45 @@ function ItemList({ listId }: ItemListProps) {
 		// update((old) => old.filter((item) => item.id !== id))
 		await supabase.from('todos').delete().eq('id', id)
 		setLoading(false)
+
+		if (selected >= todos.length - 1) {
+			setSelected(todos.length - 2)
+		}
+		if (todos.length === 1) {
+			setSelected(0)
+		}
+	}
+
+	async function onReorder(data: Todos) {
+		update(() => data)
+	}
+
+	async function onDragEnd() {
+		const rank = calcNewRank(todos, lastDragged ?? '')
+
+		await supabase.from('todos').update({ sort_rank: rank }).eq('id', lastDragged)
 	}
 
 	return (
-		<ul className="flex w-full flex-col-reverse gap-1">
-			{todos.map((item) => (
-				<li key={item.id}>
-					<Item loading={loading} item={item} clickHandler={clickHandler} />
-				</li>
+		<Reorder.Group
+			axis="y"
+			values={todos}
+			onReorder={onReorder}
+			className="flex w-full flex-col gap-1"
+		>
+			{todos.map((item, i) => (
+				<Item
+					index={i}
+					onDragEnd={onDragEnd}
+					setLastDragged={setLastDragged}
+					key={item.id}
+					loading={loading}
+					item={item}
+					clickHandler={clickHandler}
+					selected={selected === i}
+				/>
 			))}
-		</ul>
+		</Reorder.Group>
 	)
 }
 export { ItemList }

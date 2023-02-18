@@ -15,7 +15,6 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.redirect(url)
 	}
 
-	console.log('creating list')
 	const newId = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/createList`, {
 		method: 'POST',
 		body: JSON.stringify({}),

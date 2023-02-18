@@ -7,19 +7,6 @@ import { supabase } from '@/lib/supabase'
 import { todosSchema } from '@/lib/zod'
 import { cookies, headers } from 'next/headers'
 
-const placeholder_todos = [
-	'Buy coffee beans',
-	'Pay utilities',
-	'Take out the trash',
-	'Finish the design',
-	'Write the blog post',
-	'Do math homework',
-]
-
-function getRandomPlaceholder() {
-	return placeholder_todos[Math.floor(Math.random() * placeholder_todos.length)]
-}
-
 export default async function Home() {
 	return (
 		<main className="">

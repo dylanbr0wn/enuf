@@ -7,6 +7,7 @@ const todoSchema = z.object({
 	title: z.string(),
 	created_at: z.string().datetime({ offset: true }),
 	priority: z.number().min(0).max(4),
+	sort_rank: z.string(),
 })
 
 const todosSchema = z.array(todoSchema)

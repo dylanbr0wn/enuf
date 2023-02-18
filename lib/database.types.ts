@@ -55,6 +55,7 @@ export interface Database {
           id: string
           list_id: string
           priority: number
+          sort_rank: string | null
           title: string | null
         }
         Insert: {
@@ -63,6 +64,7 @@ export interface Database {
           id: string
           list_id: string
           priority?: number
+          sort_rank?: string | null
           title?: string | null
         }
         Update: {
@@ -71,6 +73,7 @@ export interface Database {
           id?: string
           list_id?: string
           priority?: number
+          sort_rank?: string | null
           title?: string | null
         }
       }

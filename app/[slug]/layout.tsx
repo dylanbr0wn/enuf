@@ -1,14 +1,3 @@
 export default function Layout({ children }: { children: React.ReactNode }) {
-	return (
-		<div
-			className=" grid"
-			style={{
-				gridTemplateColumns: 'auto 1fr auto',
-			}}
-		>
-			<header />
-			<main>{children}</main>
-			<footer />
-		</div>
-	)
+	return <main className="mx-auto h-full w-full max-w-3xl">{children}</main>
 }

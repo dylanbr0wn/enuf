@@ -9,12 +9,13 @@ import {
 	ChevronUp,
 	LucideIcon,
 	LucideProps,
+	CircleDot,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from './button'
 import { Card } from './card'
 import { Checkbox } from './checkbox'
-import { AnimatePresence, motion, Variants } from 'framer-motion'
+import { AnimatePresence, motion, Variants, Reorder, useDragControls } from 'framer-motion'
 import { Input } from './input'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -40,18 +41,33 @@ type ItemProps = {
 	item: Todo
 	clickHandler: (id: string) => void
 	loading: boolean
+	selected: boolean
+	onDragEnd: (id: string) => void
+	index: number
+	setLastDragged: (id: string) => void
 }
 
 const variants: Variants = {
-	hidden: { opacity: 0 },
-	visible: { opacity: 1 },
+	hidden: { opacity: 0, height: 58 },
+	visible: { opacity: 1, height: 58 },
+	open: { opacity: 1, height: 256 },
 }
 
-function Item({ item, loading, clickHandler }: ItemProps) {
+function Item({
+	item,
+	loading,
+	clickHandler,
+	selected,
+	onDragEnd,
+	index,
+	setLastDragged,
+}: ItemProps) {
 	const [checked, setChecked] = useState(false)
 	const [open, setOpen] = useState(false)
+	const [initialIndex, setInitialIndex] = useState(index)
 
 	const update = useListStore((s) => s.update)
+	const controls = useDragControls()
 
 	const {
 		handleSubmit,
@@ -101,142 +117,107 @@ function Item({ item, loading, clickHandler }: ItemProps) {
 		await supabase.from('todos').update({ priority: newPriority }).eq('id', item.id)
 	}
 
+	function handleDragStart(e: React.PointerEvent<HTMLDivElement>, index: number) {
+		controls.start(e)
+		setInitialIndex(index)
+		setLastDragged(item.id)
+	}
+
 	return (
 		<AnimatePresence>
-			{!open ? (
+			<Reorder.Item
+				value={item}
+				dragListener={false}
+				dragControls={controls}
+				variants={variants}
+				initial="hidden"
+				animate={open ? 'open' : 'visible'}
+				exit="hidden"
+				layout
+				transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+				data-selected={selected}
+				className="relative flex w-full flex-col justify-start gap-4 rounded-lg border border-transparent bg-white px-4 py-2  shadow-black/10  hover:bg-neutral-100 data-[selected='true']:bg-neutral-100  dark:bg-neutral-900 dark:hover:bg-neutral-800  "
+			>
 				<motion.div
-					variants={variants}
-					initial="hidden"
-					animate="visible"
-					exit="hidden"
 					layout
-					layoutId={`card-${item.id}`}
-					className="w-full"
+					className=" flex w-full items-center gap-3"
+					onPointerDown={(e) => handleDragStart(e, index)}
+					onPointerUp={(e) => onDragEnd(item.id)}
 				>
-					<motion.div
-						layout="position"
-						variants={variants}
-						initial="hidden"
-						animate="visible"
-						exit="hidden"
-						className="flex w-full flex-col gap-4 rounded-lg border border-neutral-200/50 bg-white/50 p-5 shadow-xl shadow-cyan-200/10 backdrop-blur animate-in fade-in duration-500 fill-mode-both hover:border-sky-300"
+					<Checkbox checked={checked} onCheckedChange={onChecked} className="z-10" />
+					<form
+						onSubmit={handleSubmit(onSubmit)}
+						className="pointer-events-none z-10 flex items-center gap-2"
 					>
-						<motion.div
-							layout="position"
-							className="relative flex h-full w-full items-center gap-3"
-						>
-							<div className="z-10 h-full shrink-0">
-								<Checkbox checked={checked} onCheckedChange={onChecked} />
+						<Input
+							{...register('title')}
+							className="pointer-events-auto w-fit shrink border-transparent hover:border-neutral-300 focus:border-neutral-300 dark:border-transparent dark:hover:border-neutral-600 dark:focus:border-neutral-600"
+						/>
+						{isDirty && (
+							<>
+								<Button type="submit" size="sm" className="pointer-events-auto z-10">
+									<Check className=" h-4 w-4" />
+								</Button>
+								<Button
+									type="button"
+									size="sm"
+									variant="outline"
+									onClick={() => reset()}
+									className="pointer-events-auto z-10"
+								>
+									<X className="h-4 w-4" />
+								</Button>
+							</>
+						)}
+					</form>
+					<div className="grow" />
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" className="z-10 " size="sm">
+								<PriorityIcon priority={item.priority} className="h-4 w-4 text-neutral-500" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start">
+							<div className="w-36 text-sm">
+								<DropdownMenuLabel>Priority</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								<div className="w-36 text-sm">
+									<DropdownMenuRadioGroup
+										value={item.priority.toString()}
+										onValueChange={handlePriorityChange}
+									>
+										<DropdownMenuRadioItem value="4" className="flex items-center gap-3">
+											<PriorityIcon priority={4} className="h-4 w-4" />
+											<span>Highest</span>
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="3" className="flex items-center gap-3">
+											<PriorityIcon priority={3} className="h-4 w-4" />
+											<span>High</span>
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="2" className="flex items-center gap-3">
+											<PriorityIcon priority={2} className="h-4 w-4 " />
+											<span>Medium</span>
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="1" className="flex items-center gap-3">
+											<PriorityIcon priority={1} className="h-4 w-4" />
+											<span>Low</span>
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="0" className="flex items-center gap-3">
+											<PriorityIcon priority={0} className="h-4 w-4" />
+											<span>Lowest</span>
+										</DropdownMenuRadioItem>
+									</DropdownMenuRadioGroup>
+								</div>
 							</div>
-							<form
-								onSubmit={handleSubmit(onSubmit)}
-								className="pointer-events-none z-10 flex items-center gap-2"
-							>
-								<Input
-									{...register('title')}
-									className="pointer-events-auto w-fit shrink border-transparent hover:border-slate-300 focus:border-slate-300"
-								/>
-								{isDirty && (
-									<>
-										<Button type="submit" size="sm" className="pointer-events-auto z-10">
-											<Check className=" h-4 w-4" />
-										</Button>
-										<Button
-											type="button"
-											size="sm"
-											variant="outline"
-											onClick={() => reset()}
-											className="pointer-events-auto z-10"
-										>
-											<X className="h-4 w-4" />
-										</Button>
-									</>
-								)}
-							</form>
-							<div className="grow" />
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" className="z-10 " size="sm">
-										<PriorityIcon priority={item.priority} className="h-4 w-4" />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start">
-									<div className="w-36 text-sm">
-										<DropdownMenuLabel>Priority</DropdownMenuLabel>
-										<DropdownMenuSeparator />
-										<div className="w-36 text-sm">
-											<DropdownMenuRadioGroup
-												value={item.priority.toString()}
-												onValueChange={handlePriorityChange}
-											>
-												<DropdownMenuRadioItem value="4" className="flex items-center gap-3">
-													<PriorityIcon priority={4} className="h-4 w-4" />
-													<span>Highest</span>
-												</DropdownMenuRadioItem>
-												<DropdownMenuRadioItem value="3" className="flex items-center gap-3">
-													<PriorityIcon priority={3} className="h-4 w-4" />
-													<span>High</span>
-												</DropdownMenuRadioItem>
-												<DropdownMenuRadioItem value="2" className="flex items-center gap-3">
-													<PriorityIcon priority={2} className="h-4 w-4" />
-													<span>Medium</span>
-												</DropdownMenuRadioItem>
-												<DropdownMenuRadioItem value="1" className="flex items-center gap-3">
-													<PriorityIcon priority={1} className="h-4 w-4" />
-													<span>Low</span>
-												</DropdownMenuRadioItem>
-												<DropdownMenuRadioItem value="0" className="flex items-center gap-3">
-													<PriorityIcon priority={0} className="h-4 w-4" />
-													<span>Lowest</span>
-												</DropdownMenuRadioItem>
-											</DropdownMenuRadioGroup>
-										</div>
-									</div>
-								</DropdownMenuContent>
-							</DropdownMenu>
-
-							<button
-								title="Open card"
-								className="absolute top-0 left-0 z-0 h-full w-full cursor-pointer"
-								onClick={() => setOpen(true)}
-							/>
-						</motion.div>
-					</motion.div>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</motion.div>
-			) : (
-				<>
-					<motion.div
-						variants={variants}
-						initial="hidden"
-						animate="visible"
-						exit="hidden"
-						layout
-						layoutId={`card-${item.id}`}
-						className="fixed top-1/3  z-30 mx-auto h-1/3 w-full max-w-3xl"
-					>
-						<motion.div
-							layout="position"
-							variants={variants}
-							initial="hidden"
-							animate="visible"
-							exit="hidden"
-							className="flex h-full  w-full  flex-col gap-4 rounded-lg border border-neutral-200/50 bg-white p-5 shadow-xl shadow-cyan-200/10 backdrop-blur  animate-in fade-in duration-500 fill-mode-both"
-						>
-							<motion.div layout="position" className="flex w-full items-center gap-3">
-								<Checkbox checked={checked} onCheckedChange={onChecked} />
-								<span className="text-lg text-neutral-600">{item.title}</span>
-								{/* <Button disabled={loading} onClick={() => clickHandler(item.id)} variant="ghost">
-        <X className="h-5 w-5 text-neutral-500" />
-      </Button> */}
-							</motion.div>
-						</motion.div>
-					</motion.div>
-					<div
-						onClick={() => setOpen(false)}
-						className="fixed top-0 left-0 h-full w-full bg-black/40 animate-in fade-in"
-					/>
-				</>
-			)}
+				{/* <button
+					title="Open card"
+					className="absolute top-0 left-0 z-0 h-full w-full cursor-pointer"
+					onClick={() => setOpen((open) => !open)}
+				/> */}
+			</Reorder.Item>
 		</AnimatePresence>
 	)
 }
@@ -246,7 +227,7 @@ function PriorityIcon({ priority, ...props }: { priority: number } & LucideProps
 	const icons: ((props: LucideProps) => JSX.Element)[] = [
 		(props) => <ChevronsDown key="0" {...props} />,
 		(props) => <ChevronDown key="1" {...props} />,
-		(props) => <Circle key="2" {...props} />,
+		(props) => <CircleDot key="2" {...props} />,
 		(props) => <ChevronUp key="3" {...props} />,
 		(props) => <ChevronsUp key="4" {...props} />,
 	]
