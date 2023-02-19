@@ -2,16 +2,15 @@
 
 import { useRef, useState } from 'react'
 import { Input } from './input'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
 import { Loader2, Plus } from 'lucide-react'
 import { createId } from '@paralleldrive/cuid2'
 import { useListStore } from '@/lib/zustand'
-import { Todo, todoSchema } from '@/lib/zod'
+import { todoSchema } from '@/lib/zod'
 import { Button } from './button'
 import { calcNewRank } from '@/lib/utils'
+import { Separator } from './separator'
 
 type InsertFormProps = {
 	placeholder: string
@@ -22,7 +21,8 @@ export type FormValues = {
 	newItem: string
 }
 
-const inputSchema = z.string().min(1).max(100)
+const todoChangeSchema = z.string().max(100)
+const todoSubmitSchema = todoChangeSchema.max(100)
 
 function InsertForm({ placeholder, listId }: InsertFormProps) {
 	const { setLoading, loading, update, todos } = useListStore((s) => ({
@@ -40,15 +40,16 @@ function InsertForm({ placeholder, listId }: InsertFormProps) {
 	}
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-		const value = inputSchema.parse(e.target.value)
-		setInput(value)
+		const res = todoChangeSchema.safeParse(e.target.value)
+		if (!res.success) return
+		setInput(res.data)
 	}
 
 	function handleSubmit(fn: (data: FormValues) => void) {
 		return (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault()
 
-			const res = inputSchema.safeParse(input)
+			const res = todoSubmitSchema.safeParse(input)
 
 			if (!res.success) {
 				return
@@ -87,13 +88,20 @@ function InsertForm({ placeholder, listId }: InsertFormProps) {
 			<Button variant="ghost" size="sm">
 				<Plus className="h-4 w-4" />
 			</Button>
-			<Input
-				name="newItem"
-				ref={inputRef}
-				value={input}
-				onChange={handleChange}
-				placeholder={placeholder}
-			/>
+			<div className="w-full">
+				<Input
+					name="newItem"
+					ref={inputRef}
+					value={input}
+					onChange={handleChange}
+					placeholder={placeholder}
+				/>
+				<Separator
+					orientation="horizontal"
+					className="w-full origin-left translate-y-[-1px] scale-x-0 bg-neutral-700 transition-transform peer-focus:scale-x-100 dark:bg-neutral-300"
+				/>
+			</div>
+
 			{loading && (
 				<div className="absolute top-1/2 right-2 -translate-y-1/2 ">
 					<Loader2 className=" h-4 w-4 animate-spin text-neutral-700 animate-in animate-out fade-in fade-out" />

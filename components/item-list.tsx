@@ -2,29 +2,35 @@
 
 import { supabase } from '@/lib/supabase'
 import { todoSchema, todosSchema } from '@/lib/zod'
-import { useListStore } from '@/lib/zustand'
-import { LayoutGroup, Reorder } from 'framer-motion'
+import { filteredTodoSelector, useDragStore, useListStore } from '@/lib/zustand'
+import { Reorder } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Item } from './item'
 import type { Todos } from '@/lib/zod'
 
 import { useOnKeyPress } from '@/lib/hooks'
 import { calcNewRank } from '@/lib/utils'
+import { ScrollArea } from './scroll-area'
 
 type ItemListProps = {
 	listId: string
 }
 
 function ItemList({ listId }: ItemListProps) {
-	const { update, loading, setLoading, todos } = useListStore((s) => ({
+	const { update, setLoading, todos, selected, setSelected, filteredTodos } = useListStore((s) => ({
 		update: s.update,
 		loading: s.loadingTodos,
 		setLoading: s.setLoadingTodos,
 		todos: s.items,
+		selected: s.selected,
+		setSelected: s.setSelected,
+		filteredTodos: filteredTodoSelector(s),
 	}))
 
-	const [lastDragged, setLastDragged] = useState<string>()
-	const [selected, setSelected] = useState(0)
+	const { setLastDragged, lastDragged } = useDragStore((s) => ({
+		setLastDragged: s.setLastDragged,
+		lastDragged: s.lastDragged,
+	}))
 
 	useOnKeyPress('ArrowUp', () => {
 		setSelected((s) => {
@@ -151,25 +157,24 @@ function ItemList({ listId }: ItemListProps) {
 	}
 
 	return (
-		<Reorder.Group
-			axis="y"
-			values={todos}
-			onReorder={onReorder}
-			className="flex w-full flex-col gap-1"
-		>
-			{todos.map((item, i) => (
-				<Item
-					index={i}
-					onDragEnd={onDragEnd}
-					setLastDragged={setLastDragged}
-					key={item.id}
-					loading={loading}
-					item={item}
-					clickHandler={clickHandler}
-					selected={selected === i}
-				/>
-			))}
-		</Reorder.Group>
+		<ScrollArea className="mx-auto w-full max-w-3xl ">
+			<Reorder.Group
+				axis="y"
+				values={todos}
+				onReorder={onReorder}
+				className="flex w-full flex-col gap-1"
+			>
+				{filteredTodos.map((item, i) => (
+					<Item
+						index={i}
+						onDragEnd={onDragEnd}
+						key={item.id}
+						item={item}
+						clickHandler={clickHandler}
+					/>
+				))}
+			</Reorder.Group>
+		</ScrollArea>
 	)
 }
 export { ItemList }

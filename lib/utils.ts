@@ -115,3 +115,14 @@ export function calcNewRank(todos: Todos, id: string): string {
 	const newRank = getRankBetween(getSurroundingElements(todos, id))
 	return newRank
 }
+
+export function getTitle(str: string) {
+	return str.split('$')[0]
+}
+
+export function getTags(str: string) {
+	console.log(str)
+	const tags = str.split('$')
+	console.log(tags)
+	return tags.slice(1)
+}

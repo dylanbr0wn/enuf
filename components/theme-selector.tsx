@@ -20,10 +20,10 @@ function ThemeSelector() {
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" size="sm">
-					<Moon className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
+					<Moon className="pointer-events-auto h-4 w-4 text-neutral-700 dark:text-neutral-200" />
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
+			<DropdownMenuContent align="end" className="pointer-events-auto">
 				<DropdownMenuLabel className="flex gap-2">
 					<span>Theme</span>
 				</DropdownMenuLabel>

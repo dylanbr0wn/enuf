@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 						}}
 					>
 						<Header />
-						<div className="mx-auto h-full w-full max-w-3xl pt-16">{children}</div>
+						<div className=" h-full w-full">{children}</div>
 						<Footer />
 					</div>
 				</ThemeProvider>
