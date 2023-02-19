@@ -134,7 +134,7 @@ export enum OS {
 }
 
 export function os(): OS {
-	let os = navigator.userAgent
+	let os = window.navigator.userAgent
 
 	if (os.search('Windows') !== -1) {
 		return OS.Windows
