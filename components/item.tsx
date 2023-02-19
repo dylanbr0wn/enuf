@@ -129,43 +129,41 @@ function Item({ item, clickHandler, onDragEnd, index }: ItemProps) {
 				aria-disabled={dragging && lastDragged !== item.id}
 				transition={{ type: 'spring', stiffness: 500, damping: 30 }}
 				data-selected={selected === index}
-				className="relative flex w-full flex-col justify-start gap-4 rounded-lg border border-transparent  bg-white  px-4 py-2 shadow-black/10 hover:bg-neutral-50 aria-disabled:pointer-events-none data-[selected='true']:bg-neutral-100 hover:data-[selected='true']:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:data-[selected='true']:bg-neutral-700"
+				className="relative flex w-full items-center gap-1 rounded-lg border border-transparent  bg-white  px-4 py-2 shadow-black/10 hover:bg-neutral-50 aria-disabled:pointer-events-none data-[selected='true']:bg-neutral-100 hover:data-[selected='true']:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:data-[selected='true']:bg-neutral-700"
 			>
-				<motion.div layout className=" flex w-full items-center gap-1">
-					<Checkbox checked={checked} onCheckedChange={onChecked} className="z-10" />
-					<form
-						ref={formRef}
-						onSubmit={handleSubmit(onSubmit)}
-						className="z-10 flex w-1/2 items-center gap-2"
-					>
-						<div className="w-full">
-							<Input
-								{...register('title')}
-								className="w-full border-transparent"
-								onBlur={handleSubmit(onSubmit)}
-							/>
-							<Separator
-								orientation="horizontal"
-								className="w-full origin-left translate-y-[-1px] scale-x-0 bg-neutral-700 transition-transform peer-focus:scale-x-100 dark:bg-neutral-300"
-							/>
-						</div>
-					</form>
-					<div className="grow" />
-					<div className="flex gap-1">
-						{getTags(item.title).map((tag) => (
-							<Tag tag={tag} key={tag} deleteTag={deleteTag} />
-						))}
+				<Checkbox checked={checked} onCheckedChange={onChecked} className="z-10" />
+				<form
+					ref={formRef}
+					onSubmit={handleSubmit(onSubmit)}
+					className="z-10 flex w-1/2 items-center gap-2"
+				>
+					<div className="w-full">
+						<Input
+							{...register('title')}
+							className="w-full border-transparent"
+							onBlur={handleSubmit(onSubmit)}
+						/>
+						<Separator
+							orientation="horizontal"
+							className="w-full origin-left translate-y-[-1px] scale-x-0 bg-neutral-700 transition-transform peer-focus:scale-x-100 dark:bg-neutral-300"
+						/>
 					</div>
-					<Button
-						variant="ghost"
-						size="sm"
-						data-grabed={dragging && lastDragged === item.id}
-						className="cursor-grab touch-none text-neutral-400 data-[grabed='true']:cursor-grabbing dark:text-neutral-500"
-						onPointerDown={(e) => handleDragStart(e, index)}
-					>
-						<GripVertical className="h-4 w-4 " />
-					</Button>
-				</motion.div>
+				</form>
+				<div className="grow" />
+				<div className="flex gap-1">
+					{getTags(item.title).map((tag) => (
+						<Tag tag={tag} key={tag} deleteTag={deleteTag} />
+					))}
+				</div>
+				<Button
+					variant="ghost"
+					size="sm"
+					data-grabed={dragging && lastDragged === item.id}
+					className="cursor-grab touch-none text-neutral-400 data-[grabed='true']:cursor-grabbing dark:text-neutral-500"
+					onPointerDown={(e) => handleDragStart(e, index)}
+				>
+					<GripVertical className="h-4 w-4 " />
+				</Button>
 			</Reorder.Item>
 		</AnimatePresence>
 	)
