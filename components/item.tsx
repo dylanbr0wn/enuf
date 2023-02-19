@@ -120,10 +120,6 @@ function Item({ item, clickHandler, onDragEnd, index }: ItemProps) {
 				value={item}
 				dragListener={false}
 				dragControls={controls}
-				variants={variants}
-				initial="hidden"
-				animate={'visible'}
-				exit="hidden"
 				layout
 				onDragEnd={handleDragEnd}
 				aria-disabled={dragging && lastDragged !== item.id}
