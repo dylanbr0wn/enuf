@@ -1,6 +1,7 @@
 import { Card } from '@/components/card'
 import { InsertForm } from '@/components/insert-form'
 import { ItemList } from '@/components/item-list'
+import { Metadata } from 'next'
 
 const placeholder_todos = [
 	'Buy coffee beans',
@@ -19,6 +20,12 @@ type ListProps = {
 	params: {
 		slug: string
 	}
+}
+
+export const metadata: Metadata = {
+	title: 'todo',
+	description: 'when everything is to much but you need to do it anyway',
+	viewport: 'width=device-width, initial-scale=1, interactive-widget=resizes-content',
 }
 
 export default async function List({ params }: ListProps) {

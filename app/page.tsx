@@ -1,11 +1,10 @@
-import { Card } from '@/components/card'
-import { Input } from '@/components/input'
-import { FormValues, InsertForm } from '@/components/insert-form'
-import { ItemList } from '@/components/item-list'
-import { Database } from '@/lib/database.types'
-import { supabase } from '@/lib/supabase'
-import { todosSchema } from '@/lib/zod'
-import { cookies, headers } from 'next/headers'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+	title: 'todo',
+	description: 'when everything is to much but you need to do it anyway',
+	viewport: 'width=device-width, initial-scale=1, interactive-widget=resizes-content',
+}
 
 export default async function Home() {
 	return (
