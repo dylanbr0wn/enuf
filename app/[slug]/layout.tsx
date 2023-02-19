@@ -1,3 +1,5 @@
+import { PageResizer } from '@/components/page-resizer'
+
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<main
@@ -5,6 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 			style={{ gridTemplateRows: '1fr auto' }}
 		>
 			{children}
+			<PageResizer />
 		</main>
 	)
 }
