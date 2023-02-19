@@ -134,6 +134,7 @@ export enum OS {
 }
 
 export function os(): OS {
+	if (typeof window === 'undefined') return OS.Unknown
 	let os = window.navigator.userAgent
 
 	if (os.search('Windows') !== -1) {
