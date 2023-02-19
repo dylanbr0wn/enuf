@@ -9,3 +9,9 @@
 .blue-glow{
   background: radial-gradient(50% 50% at 50% 50%, rgba(135, 212, 255) 0%, rgba(135, 212, 255, 0) 100%);
 }
+
+.main {
+
+  height: 100dvh;
+  height: 100vh;
+}

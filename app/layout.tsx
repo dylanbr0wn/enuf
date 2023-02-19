@@ -17,21 +17,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 			<head />
 			<body
 				className={cn(
-					'min-h-screen bg-white font-sans text-neutral-900 antialiased dark:bg-neutral-900 dark:text-neutral-50',
+					' bg-white font-sans text-neutral-900 antialiased dark:bg-neutral-900 dark:text-neutral-50',
 					inter_tight.variable
 				)}
 			>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-					<div
-						className=" grid h-screen w-full"
-						style={{
-							gridTemplateRows: '1fr auto',
-						}}
-					>
-						<Header />
-						<div className=" h-full w-full">{children}</div>
-						<Footer />
-					</div>
+					<Header />
+					{children}
 				</ThemeProvider>
 			</body>
 		</html>
