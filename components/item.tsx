@@ -156,22 +156,16 @@ function Item({ item, clickHandler, onDragEnd, index }: ItemProps) {
 							<Tag tag={tag} key={tag} deleteTag={deleteTag} />
 						))}
 					</div>
-					{/* <PrioritySelector id={item.id} priority={item.priority} /> */}
 					<Button
 						variant="ghost"
 						size="sm"
-						// disabled={dragging && lastDragged !== item.id}
-						className="touch-none text-neutral-500 active:cursor-grabbing"
+						data-grabed={dragging && lastDragged === item.id}
+						className="cursor-grab touch-none text-neutral-400 data-[grabed='true']:cursor-grabbing dark:text-neutral-500"
 						onPointerDown={(e) => handleDragStart(e, index)}
 					>
 						<GripVertical className="h-4 w-4 " />
 					</Button>
 				</motion.div>
-				{/* <button
-					title="Open card"
-					className="absolute top-0 left-0 z-0 h-full w-full cursor-pointer"
-					onClick={() => setOpen((open) => !open)}
-				/> */}
 			</Reorder.Item>
 		</AnimatePresence>
 	)

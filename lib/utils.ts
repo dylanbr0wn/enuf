@@ -121,8 +121,30 @@ export function getTitle(str: string) {
 }
 
 export function getTags(str: string) {
-	console.log(str)
 	const tags = str.split('$')
-	console.log(tags)
 	return tags.slice(1)
+}
+
+export enum OS {
+	Windows = 'Windows',
+	MacOS = 'MacOS',
+	UNIX = 'UNIX',
+	Linux = 'Linux',
+	Unknown = 'Unknown',
+}
+
+export function os(): OS {
+	let os = navigator.userAgent
+
+	if (os.search('Windows') !== -1) {
+		return OS.Windows
+	} else if (os.search('Mac') !== -1) {
+		return OS.MacOS
+	} else if (os.search('X11') !== -1 && !(os.search('Linux') !== -1)) {
+		return OS.UNIX
+	} else if (os.search('Linux') !== -1 && os.search('X11') !== -1) {
+		return OS.Linux
+	} else {
+		return OS.Unknown
+	}
 }

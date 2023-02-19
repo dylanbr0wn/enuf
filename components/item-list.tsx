@@ -2,14 +2,14 @@
 
 import { supabase } from '@/lib/supabase'
 import { todoSchema, todosSchema } from '@/lib/zod'
-import { filteredTodoSelector, useDragStore, useListStore } from '@/lib/zustand'
+import { useDragStore, useListStore } from '@/lib/zustand'
 import { Reorder } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Item } from './item'
 import type { Todos } from '@/lib/zod'
 
-import { useOnKeyPress } from '@/lib/hooks'
-import { calcNewRank } from '@/lib/utils'
+import { useFilteredTodos, useOnKeyPress } from '@/lib/hooks'
+import { calcNewRank, OS, os } from '@/lib/utils'
 import { ScrollArea } from './scroll-area'
 
 type ItemListProps = {
@@ -17,15 +17,20 @@ type ItemListProps = {
 }
 
 function ItemList({ listId }: ItemListProps) {
-	const { update, setLoading, todos, selected, setSelected, filteredTodos } = useListStore((s) => ({
-		update: s.update,
-		loading: s.loadingTodos,
-		setLoading: s.setLoadingTodos,
-		todos: s.items,
-		selected: s.selected,
-		setSelected: s.setSelected,
-		filteredTodos: filteredTodoSelector(s),
-	}))
+	const { update, setLoading, selected, setSelected, unfilteredTodos, filters } = useListStore(
+		(s) => ({
+			update: s.update,
+			loading: s.loadingTodos,
+			setLoading: s.setLoadingTodos,
+			todos: s.items,
+			selected: s.selected,
+			setSelected: s.setSelected,
+			unfilteredTodos: s.items,
+			filters: s.filters,
+		})
+	)
+
+	const filteredTodos = useFilteredTodos(unfilteredTodos, filters)
 
 	const { setLastDragged, lastDragged } = useDragStore((s) => ({
 		setLastDragged: s.setLastDragged,
@@ -35,7 +40,7 @@ function ItemList({ listId }: ItemListProps) {
 	useOnKeyPress('ArrowUp', () => {
 		setSelected((s) => {
 			if (s === 0) {
-				return todos.length - 1
+				return filteredTodos.length - 1
 			}
 			return s - 1
 		})
@@ -43,7 +48,7 @@ function ItemList({ listId }: ItemListProps) {
 
 	useOnKeyPress('ArrowDown', () => {
 		setSelected((s) => {
-			if (s === todos.length - 1) {
+			if (s === filteredTodos.length - 1) {
 				return 0
 			}
 			return s + 1
@@ -53,12 +58,12 @@ function ItemList({ listId }: ItemListProps) {
 	useOnKeyPress(
 		'Enter',
 		() => {
-			if (todos.length > 0) {
-				const id = todos.at(selected)?.id
+			if (filteredTodos.length > 0) {
+				const id = filteredTodos.at(selected)?.id
 				clickHandler(id ?? '')
 			}
 		},
-		{ meta: true }
+		os() === OS.MacOS ? { meta: true } : { ctrl: true }
 	)
 
 	useEffect(() => {
@@ -138,29 +143,44 @@ function ItemList({ listId }: ItemListProps) {
 		await supabase.from('todos').delete().eq('id', id)
 		setLoading(false)
 
-		if (selected >= todos.length - 1) {
-			setSelected(todos.length - 2)
+		if (selected >= filteredTodos.length - 1) {
+			setSelected(filteredTodos.length - 2)
 		}
-		if (todos.length === 1) {
+		if (filteredTodos.length === 1) {
 			setSelected(0)
 		}
 	}
 
-	async function onReorder(data: Todos) {
-		update(() => data)
+	function onReorder(data: Todos) {
+		update((todos) => {
+			const newTodos: Todos = []
+			let replaceMentIndex = 0
+
+			todos.forEach((todo) => {
+				if (data.some((item) => item.id === todo.id)) {
+					newTodos.push(data[replaceMentIndex++])
+				} else {
+					newTodos.push(todo)
+				}
+			})
+			return newTodos
+		})
 	}
 
 	async function onDragEnd() {
-		const rank = calcNewRank(todos, lastDragged ?? '')
+		const rank = calcNewRank(unfilteredTodos, lastDragged ?? '')
 
 		await supabase.from('todos').update({ sort_rank: rank }).eq('id', lastDragged)
 	}
+
+	const numFiltered = unfilteredTodos.length - filteredTodos.length
 
 	return (
 		<ScrollArea className="mx-auto w-full max-w-3xl ">
 			<Reorder.Group
 				axis="y"
-				values={todos}
+				key={numFiltered}
+				values={filteredTodos}
 				onReorder={onReorder}
 				className="flex w-full flex-col gap-1"
 			>
@@ -173,6 +193,11 @@ function ItemList({ listId }: ItemListProps) {
 						clickHandler={clickHandler}
 					/>
 				))}
+				{numFiltered > 0 ? (
+					<div className="text-center text-sm text-gray-400 animate-in fade-in">
+						{numFiltered} items hidden by filters
+					</div>
+				) : null}
 			</Reorder.Group>
 		</ScrollArea>
 	)

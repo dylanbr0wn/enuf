@@ -28,6 +28,7 @@ export default async function List({ params }: ListProps) {
 			style={{ gridTemplateRows: '1fr auto' }}
 		>
 			<ItemList listId={params.slug} />
+
 			<div className="z-20 w-screen bg-white/50 backdrop-blur dark:bg-neutral-900/50">
 				<div className="h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-700/50 to-transparent" />
 				<div className="mx-auto max-w-3xl shrink-0 py-5 duration-500 delay-500">

@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					<div
 						className=" grid h-screen w-full"
 						style={{
-							gridTemplateRows: 'auto 1fr auto',
+							gridTemplateRows: '1fr auto',
 						}}
 					>
 						<Header />

@@ -20,20 +20,6 @@ type ListStore = {
 	setFilters: (fn: (items: Filter[]) => Filter[]) => void
 }
 
-export const filteredTodoSelector = (s: ListStore) => {
-	const { items, filters } = s
-	const filtered = filters.reduce((acc, filter) => {
-		if (filter.type === 'tag') {
-			return acc.filter((item) => getTags(item.title).includes(filter.value))
-		}
-		if (filter.type === 'search') {
-			return acc.filter((item) => item.title.includes(filter.value))
-		}
-		return acc
-	}, items)
-	return filtered
-}
-
 export const useListStore = create<ListStore>()((set, get) => ({
 	items: [],
 	update: (fn) => set(({ items }) => ({ items: fn(items) })),
