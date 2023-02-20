@@ -9,7 +9,7 @@ function Header() {
 				<List className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
 				<ThemeSelector />
 			</div>
-			<div className="h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-700/50 to-transparent" />
+			<div className="h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-700/50 to-transparent " />
 		</header>
 	)
 }

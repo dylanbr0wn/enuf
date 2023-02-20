@@ -3,7 +3,6 @@
 import { useRef, useState } from 'react'
 import { Input } from './input'
 import { z } from 'zod'
-import { supabase } from '@/lib/supabase'
 import { Loader2, Plus } from 'lucide-react'
 import { createId } from '@paralleldrive/cuid2'
 import { useListStore } from '@/lib/zustand'
@@ -11,6 +10,7 @@ import { todoSchema } from '@/lib/zod'
 import { Button } from './button'
 import { calcNewRank } from '@/lib/utils'
 import { Separator } from './separator'
+import { useSupabase } from './supabase-provider'
 
 type InsertFormProps = {
 	placeholder: string
@@ -25,6 +25,7 @@ const todoChangeSchema = z.string().max(100)
 const todoSubmitSchema = todoChangeSchema.max(100)
 
 function InsertForm({ placeholder, listId }: InsertFormProps) {
+	const { supabase } = useSupabase()
 	const { setLoading, loading, update, todos } = useListStore((s) => ({
 		update: s.update,
 		loading: s.loadingTodos,

@@ -3,10 +3,19 @@ import { Inter_Tight } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Header } from '@/components/header'
 import { cn } from '@/lib/utils'
+import SupabaseProvider from '@/components/supabase-provider'
+import SupabaseListener from '@/components/supabase-listener'
+import { createClient } from '@/lib/supabase-server'
 
 const inter_tight = Inter_Tight({ subsets: ['latin'], variable: '--font-sans', display: 'swap' })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+	const supabase = createClient()
+
+	const {
+		data: { session },
+	} = await supabase.auth.getSession()
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body
@@ -16,8 +25,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				)}
 			>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-					<Header />
-					{children}
+					<SupabaseProvider>
+						<SupabaseListener serverAccessToken={session?.access_token} />
+						<Header />
+						{children}
+					</SupabaseProvider>
 				</ThemeProvider>
 			</body>
 		</html>

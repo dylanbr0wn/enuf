@@ -8,12 +8,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useDragStore, useListStore } from '@/lib/zustand'
-import { supabase } from '@/lib/supabase'
 import { Todo } from '@/lib/zod'
 import { Separator } from './separator'
 import { PrioritySelector } from './priority-selector'
 import { Tag } from './tag'
 import { getTags, getTitle } from '@/lib/utils'
+import { useSupabase } from './supabase-provider'
 
 type ItemProps = {
 	item: Todo
@@ -29,6 +29,7 @@ const variants: Variants = {
 }
 
 function Item({ item, clickHandler, onDragEnd, index }: ItemProps) {
+	const { supabase } = useSupabase()
 	const [checked, setChecked] = useState(false)
 
 	const { setLastDragged, setDragging, dragging, lastDragged } = useDragStore((s) => ({

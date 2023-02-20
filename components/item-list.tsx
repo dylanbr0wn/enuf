@@ -1,6 +1,5 @@
 'use client'
 
-import { supabase } from '@/lib/supabase'
 import { todoSchema, todosSchema } from '@/lib/zod'
 import { useDragStore, useListStore } from '@/lib/zustand'
 import { Reorder } from 'framer-motion'
@@ -11,12 +10,14 @@ import type { Todos } from '@/lib/zod'
 import { useFilteredTodos, useOnKeyPress } from '@/lib/hooks'
 import { calcNewRank, OS, os } from '@/lib/utils'
 import { ScrollArea } from './scroll-area'
+import { useSupabase } from './supabase-provider'
 
 type ItemListProps = {
 	listId: string
 }
 
 function ItemList({ listId }: ItemListProps) {
+	const { supabase } = useSupabase()
 	const { update, setLoading, selected, setSelected, unfilteredTodos, filters } = useListStore(
 		(s) => ({
 			update: s.update,

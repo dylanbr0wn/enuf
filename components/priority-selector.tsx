@@ -1,4 +1,3 @@
-import { supabase } from '@/lib/supabase'
 import { useListStore } from '@/lib/zustand'
 import {
 	ChevronDown,
@@ -18,6 +17,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from './dropdown-menu'
+import { useSupabase } from './supabase-provider'
 
 function PriorityIcon({ priority, ...props }: { priority: number } & LucideProps) {
 	const icons: ((props: LucideProps) => JSX.Element)[] = [
@@ -34,6 +34,7 @@ function PriorityIcon({ priority, ...props }: { priority: number } & LucideProps
 }
 
 function PrioritySelector({ id, priority }: { id: string; priority: number }) {
+	const { supabase } = useSupabase()
 	const update = useListStore((s) => s.update)
 
 	async function handlePriorityChange(priority: string) {
