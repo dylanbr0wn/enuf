@@ -63,7 +63,7 @@ const DropdownMenuContent = React.forwardRef<
 			ref={ref}
 			sideOffset={sideOffset}
 			className={cn(
-				'z-50 min-w-[8rem] overflow-hidden rounded-md border border-neutral-100 bg-white backdrop-blur p-1 text-neutral-700 shadow-md dark:border-neutral-800 dark:bg-neutral-800 dark:text-neutral-400 animate-in data-[side=right]:slide-in-from-left-2 data-[side=left]:slide-in-from-right-2 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2',
+				'z-50 min-w-[8rem] overflow-hidden rounded-md border border-neutral-400 bg-white backdrop-blur p-1 text-neutral-700 shadow-md dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 animate-in data-[side=right]:slide-in-from-left-2 data-[side=left]:slide-in-from-right-2 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2 dark:shadow-white/5 dark:shadow-lg',
 				className
 			)}
 			{...props}
@@ -81,7 +81,7 @@ const DropdownMenuItem = React.forwardRef<
 	<DropdownMenuPrimitive.Item
 		ref={ref}
 		className={cn(
-			'relative flex cursor-default select-none items-center rounded-sm py-1.5 px-2 text-sm font-medium outline-none focus:bg-neutral-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-neutral-700',
+			'relative flex cursor-default  border-transparent select-none items-center border rounded py-1.5 px-2 text-sm font-medium outline-none focus:border-neutral-200 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:border-neutral-700',
 			inset && 'pl-8',
 			className
 		)}
@@ -120,7 +120,7 @@ const DropdownMenuRadioItem = React.forwardRef<
 	<DropdownMenuPrimitive.RadioItem
 		ref={ref}
 		className={cn(
-			'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm font-medium outline-none focus:bg-neutral-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-neutral-700',
+			'relative flex border border-transparent cursor-default select-none items-center rounded py-1.5 pl-8 pr-2 text-sm font-medium outline-none focus:border-neutral-200 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:border-neutral-700',
 			className
 		)}
 		{...props}
@@ -159,7 +159,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<DropdownMenuPrimitive.Separator
 		ref={ref}
-		className={cn('-mx-1 my-1 h-px bg-neutral-300 dark:bg-neutral-700', className)}
+		className={cn('-mx-1 my-1 h-px bg-neutral-400 dark:bg-neutral-700', className)}
 		{...props}
 	/>
 ))

@@ -12,9 +12,7 @@ export default async function Home() {
 	return (
 		<main className="h-full">
 			<div className="mx-auto flex h-full max-w-3xl flex-col items-center justify-center gap-12 ">
-				<div className="w-96 text-black">
-					<Auth />
-				</div>
+				<div className="w-96 text-black"></div>
 			</div>
 		</main>
 	)

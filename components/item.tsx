@@ -126,7 +126,7 @@ function Item({ item, clickHandler, onDragEnd, index }: ItemProps) {
 				aria-disabled={dragging && lastDragged !== item.id}
 				transition={{ type: 'spring', stiffness: 500, damping: 30 }}
 				data-selected={selected === index}
-				className="relative flex w-full items-center gap-1 rounded-lg border border-transparent  bg-white  px-4 py-2 shadow-black/10 hover:bg-neutral-50 aria-disabled:pointer-events-none data-[selected='true']:bg-neutral-100 hover:data-[selected='true']:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:data-[selected='true']:bg-neutral-700"
+				className="relative flex w-full items-center gap-1 rounded-lg border border-transparent  bg-white  px-4 py-2 shadow-black/10 hover:border-neutral-300 aria-disabled:pointer-events-none data-[selected='true']:border-neutral-600 hover:data-[selected='true']:border-neutral-600 dark:bg-neutral-900 dark:hover:border-neutral-700 dark:data-[selected='true']:border-neutral-400"
 			>
 				<Checkbox checked={checked} onCheckedChange={onChecked} className="z-10" />
 				<form
@@ -158,6 +158,7 @@ function Item({ item, clickHandler, onDragEnd, index }: ItemProps) {
 					data-grabed={dragging && lastDragged === item.id}
 					className="cursor-grab touch-none text-neutral-400 data-[grabed='true']:cursor-grabbing dark:text-neutral-500"
 					onPointerDown={(e) => handleDragStart(e, index)}
+					onPointerUp={() => setDragging(false)}
 				>
 					<GripVertical className="h-4 w-4 " />
 				</Button>

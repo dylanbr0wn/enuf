@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { getTags, OS, os } from './utils'
 import { Todos } from './zod'
 import { Filter } from './zustand'
+import useSwr from 'swr'
+import { useSupabase } from '@/components/supabase-provider'
+import { UserResponse } from '@supabase/supabase-js'
 
 export function useOnKeyPress(
 	targetKeys: KeyboardEvent['key'],
@@ -52,4 +55,37 @@ export function useFilteredTodos(todos: Todos, filters: Filter[]) {
 		setFiltered(filterTodos(todos, filters))
 	}, [todos, filters])
 	return filtered
+}
+
+function parseUser(res: UserResponse | undefined) {
+	if (!res) return null
+	const user = res.data.user
+	if (!user) return null
+
+	const metadata = user.user_metadata
+
+	const avatar = metadata?.avatar_url || metadata?.picture || null
+
+	const username =
+		metadata?.preferred_username ||
+		metadata?.user_name ||
+		metadata?.full_name ||
+		metadata?.name ||
+		user.email ||
+		''
+
+	return {
+		...user,
+		details: {
+			avatar,
+			username,
+		},
+	}
+}
+
+export function useUser() {
+	const { supabase } = useSupabase()
+	const { data, error } = useSwr('user', async () => await supabase.auth.getUser())
+
+	return parseUser(data)
 }

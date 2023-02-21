@@ -13,10 +13,13 @@ import { ScrollArea } from './scroll-area'
 import { useSupabase } from './supabase-provider'
 
 type ItemListProps = {
-	listId: string
+	list: {
+		id: string
+		todos: Todos
+	}
 }
 
-function ItemList({ listId }: ItemListProps) {
+function ItemList({ list }: ItemListProps) {
 	const { supabase } = useSupabase()
 	const { update, setLoading, selected, setSelected, unfilteredTodos, filters } = useListStore(
 		(s) => ({
@@ -68,23 +71,8 @@ function ItemList({ listId }: ItemListProps) {
 	)
 
 	useEffect(() => {
-		async function getTodos(listId: string) {
-			const { data, error } = await supabase.from('lists').select('*, todos(*)').eq('id', listId)
-
-			const todos = data?.at(0)?.todos
-
-			if (!todos) {
-				return todosSchema.parse([])
-			}
-
-			if (!Array.isArray(todos)) {
-				return todosSchema.parse([todos])
-			}
-			todos.sort((a, b) => ('' + a.sort_rank).localeCompare(b.sort_rank ?? ''))
-			update(() => todosSchema.parse(todos))
-		}
-
-		getTodos(listId)
+		if (!list) return
+		update(() => list.todos)
 		const channel = supabase
 			.channel('value-db-changes')
 			.on(
@@ -93,7 +81,7 @@ function ItemList({ listId }: ItemListProps) {
 					event: 'INSERT',
 					schema: 'public',
 					table: 'todos',
-					filter: `list_id=eq.${listId}`,
+					filter: `list_id=eq.${list.id}`,
 				},
 				(payload) => {
 					const todo = todoSchema.parse(payload.new)
@@ -112,7 +100,7 @@ function ItemList({ listId }: ItemListProps) {
 					event: 'UPDATE',
 					schema: 'public',
 					table: 'todos',
-					filter: `list_id=eq.${listId}`,
+					filter: `list_id=eq.${list.id}`,
 				},
 				(payload) => {
 					const todo = todoSchema.parse(payload.new)
@@ -125,7 +113,7 @@ function ItemList({ listId }: ItemListProps) {
 					event: 'DELETE',
 					schema: 'public',
 					table: 'todos',
-					filter: `list_id=eq.${listId}`,
+					filter: `list_id=eq.${list.id}`,
 				},
 				(payload) => {
 					update((old) => old.filter((item) => item.id !== payload.old.id))
@@ -136,7 +124,7 @@ function ItemList({ listId }: ItemListProps) {
 			update((old) => [])
 			channel.unsubscribe()
 		}
-	}, [listId, update])
+	}, [list, supabase, update])
 
 	async function clickHandler(id: string) {
 		setLoading(true)

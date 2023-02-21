@@ -48,6 +48,29 @@ export interface Database {
           id?: string
         }
       }
+      lists_users: {
+        Row: {
+          created_at: string | null
+          id: number
+          is_owner: boolean
+          list_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          is_owner: boolean
+          list_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          is_owner?: boolean
+          list_id?: string
+          user_id?: string
+        }
+      }
       todos: {
         Row: {
           created_at: string | null
@@ -55,7 +78,7 @@ export interface Database {
           id: string
           list_id: string
           priority: number
-          sort_rank: string | null
+          sort_rank: string
           title: string | null
         }
         Insert: {
@@ -64,7 +87,7 @@ export interface Database {
           id: string
           list_id: string
           priority?: number
-          sort_rank?: string | null
+          sort_rank: string
           title?: string | null
         }
         Update: {
@@ -73,7 +96,7 @@ export interface Database {
           id?: string
           list_id?: string
           priority?: number
-          sort_rank?: string | null
+          sort_rank?: string
           title?: string | null
         }
       }
