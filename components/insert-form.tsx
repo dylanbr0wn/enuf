@@ -22,7 +22,7 @@ export type FormValues = {
 }
 
 const todoChangeSchema = z.string().max(100)
-const todoSubmitSchema = todoChangeSchema.max(100)
+const todoSubmitSchema = todoChangeSchema.min(0)
 
 function InsertForm({ placeholder, listId }: InsertFormProps) {
 	const { supabase } = useSupabase()
