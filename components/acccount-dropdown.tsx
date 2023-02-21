@@ -24,6 +24,8 @@ function AccountDropdown() {
 
 	const user = useUser()
 
+	if (!user) return null
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
