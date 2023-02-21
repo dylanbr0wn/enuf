@@ -31,7 +31,7 @@ function Auth() {
 		const { error } = await supabase.auth.signInWithOtp({
 			email: data.email,
 			options: {
-				emailRedirectTo: 'http://localhost:3000',
+				emailRedirectTo: 'https://enuf.vercel.app',
 			},
 		})
 		if (error) {
