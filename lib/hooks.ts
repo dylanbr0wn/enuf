@@ -85,7 +85,7 @@ function parseUser(res: UserResponse | undefined) {
 
 export function useUser() {
 	const { supabase } = useSupabase()
-	const { data, error } = useSwr('user', async () => await supabase.auth.getUser())
+	const { data, error, mutate } = useSwr('user', async () => await supabase.auth.getUser())
 
-	return parseUser(data)
+	return { mutate, user: parseUser(data) }
 }
